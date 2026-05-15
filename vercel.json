@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "buildCommand": "npm install -g pnpm@9 && pnpm install --frozen-lockfile && cd apps/hub-api && npx prisma generate && pnpm build",
+  "builds": [
+    {
+      "src": "apps/hub-api/api/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "apps/hub-api/prisma/**",
+          "node_modules/.prisma/**"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "apps/hub-api/api/index.ts"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
