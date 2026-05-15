@@ -1,12 +1,16 @@
 {
   "version": 2,
   "installCommand": "pnpm install --frozen-lockfile && pnpm --filter @icproject/hub-api exec npx prisma generate --schema=prisma/schema.prisma",
-  "functions": {
-    "apps/hub-api/api/index.ts": {
-      "includeFiles": "apps/hub-api/prisma/**"
+  "builds": [
+    {
+      "src": "apps/hub-api/api/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": "apps/hub-api/prisma/**"
+      }
     }
-  },
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/apps/hub-api/api/index.ts" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/apps/hub-api/api/index.ts" }
   ]
 }
