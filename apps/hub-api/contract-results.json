@@ -1,0 +1,345 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\nguye\\Desktop\\NoCode-Foder\\duan6\\apps\\hub-api\\playwright.contract.config.ts",
+    "rootDir": "C:/Users/nguye/Desktop/NoCode-Foder/duan6/apps/hub-api/test/contract",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/nguye/Desktop/NoCode-Foder/duan6/apps/hub-api/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {},
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/nguye/Desktop/NoCode-Foder/duan6/apps/hub-api/test/contract",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 10000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "contract-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 6,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "report.contract.spec.ts",
+      "file": "report.contract.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "POST /report — contract",
+          "file": "report.contract.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "returns 201 with jobId for valid payload",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 10000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "190eb75d096fdafb8ca4-eb4d00c7cade39b1f724",
+              "file": "report.contract.spec.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "returns 400 for invalid scenarioType",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 10000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "190eb75d096fdafb8ca4-3f7c3a0e01c27c9a7d6a",
+              "file": "report.contract.spec.ts",
+              "line": 18,
+              "column": 7
+            },
+            {
+              "title": "returns 400 for missing phone",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 10000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "190eb75d096fdafb8ca4-d959cc732200aafa5ed2",
+              "file": "report.contract.spec.ts",
+              "line": 25,
+              "column": 7
+            },
+            {
+              "title": "returns 400 for missing scenarioType",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 10000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "190eb75d096fdafb8ca4-d761c7dee78cbe9b5bc5",
+              "file": "report.contract.spec.ts",
+              "line": 32,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "risk.contract.spec.ts",
+      "file": "risk.contract.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "POST /risk/score — contract",
+          "file": "risk.contract.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "returns 200 with required fields for valid payload",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 10000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8a8b79ca5ec2f65bdad8-2e7056adff5923cb0698",
+              "file": "risk.contract.spec.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "returns 200 with empty body (all signals optional)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 10000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8a8b79ca5ec2f65bdad8-c50ce9268d22eadce793",
+              "file": "risk.contract.spec.ts",
+              "line": 27,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "POST /risk/token — contract",
+          "file": "risk.contract.spec.ts",
+          "line": 36,
+          "column": 6,
+          "specs": [
+            {
+              "title": "returns token with correct JWT shape",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 10000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8a8b79ca5ec2f65bdad8-d0d5cc14bb3515cfcaf1",
+              "file": "risk.contract.spec.ts",
+              "line": 37,
+              "column": 7
+            },
+            {
+              "title": "token payload contains no PII",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 10000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8a8b79ca5ec2f65bdad8-67193c2984238a63bf9c",
+              "file": "risk.contract.spec.ts",
+              "line": 55,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "POST /risk/token/verify — contract",
+          "file": "risk.contract.spec.ts",
+          "line": 69,
+          "column": 6,
+          "specs": [
+            {
+              "title": "returns decoded payload for valid token",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 10000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8a8b79ca5ec2f65bdad8-7f1aa4087f2d7e2998dc",
+              "file": "risk.contract.spec.ts",
+              "line": 70,
+              "column": 7
+            },
+            {
+              "title": "returns 401 for tampered token",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 10000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8a8b79ca5ec2f65bdad8-988dd674097ec836bbc4",
+              "file": "risk.contract.spec.ts",
+              "line": 89,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "GET /risk/lookup — contract",
+          "file": "risk.contract.spec.ts",
+          "line": 97,
+          "column": 6,
+          "specs": [
+            {
+              "title": "returns 200 or 404 for a valid phone number",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 10000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "8a8b79ca5ec2f65bdad8-4fd2e0e4399b893bca12",
+              "file": "risk.contract.spec.ts",
+              "line": 98,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-05-14T05:17:38.906Z",
+    "duration": 53.47799999999995,
+    "expected": 0,
+    "skipped": 11,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,305 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/report": {
+      "post": {
+        "operationId": "ReportController_create",
+        "summary": "Submit a scam call report",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReportDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Report accepted for async processing"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "tags": [
+          "report"
+        ]
+      }
+    },
+    "/report/count": {
+      "get": {
+        "operationId": "ReportController_getCount",
+        "summary": "Get report count for a phone number",
+        "parameters": [
+          {
+            "name": "phone",
+            "required": true,
+            "in": "query",
+            "description": "Raw Vietnamese phone number (any format)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "report"
+        ]
+      }
+    },
+    "/risk/score": {
+      "post": {
+        "operationId": "RiskController_score",
+        "summary": "Score risk signals (stateless)",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RiskScoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Risk score with reason codes"
+          }
+        },
+        "tags": [
+          "risk"
+        ]
+      }
+    },
+    "/risk/score-by-phone": {
+      "post": {
+        "operationId": "RiskController_scoreByPhone",
+        "summary": "Score enriched with community report count for a phone",
+        "parameters": [
+          {
+            "name": "phone",
+            "required": true,
+            "in": "query",
+            "description": "Raw Vietnamese phone number",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RiskScoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "risk"
+        ]
+      }
+    },
+    "/risk/token": {
+      "post": {
+        "operationId": "RiskController_generateToken",
+        "summary": "Generate short-lived risk token from signals",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RiskScoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Signed JWT risk token"
+          }
+        },
+        "tags": [
+          "risk"
+        ]
+      }
+    },
+    "/risk/token/verify": {
+      "post": {
+        "operationId": "RiskController_verifyToken",
+        "summary": "Verify and decode a risk token",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Decoded token payload"
+          },
+          "401": {
+            "description": "Expired or tampered token"
+          }
+        },
+        "tags": [
+          "risk"
+        ]
+      }
+    },
+    "/risk/lookup": {
+      "get": {
+        "operationId": "RiskController_lookup",
+        "summary": "Look up stored risk score by raw phone number",
+        "parameters": [
+          {
+            "name": "phone",
+            "required": true,
+            "in": "query",
+            "description": "Raw Vietnamese phone number",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        },
+        "tags": [
+          "risk"
+        ]
+      }
+    },
+    "/metrics": {
+      "get": {
+        "operationId": "MetricsController_getMetrics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "info": {
+    "title": "Hub API — ICProject 2026",
+    "description": "Anti-scam call screening API",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "risk",
+      "description": ""
+    },
+    {
+      "name": "report",
+      "description": ""
+    }
+  ],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "CreateReportDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "Raw Vietnamese phone number (any format)"
+          },
+          "scenarioType": {
+            "type": "string",
+            "enum": [
+              "impersonation",
+              "investment_fraud",
+              "romance_scam",
+              "lottery_scam",
+              "tech_support",
+              "other"
+            ],
+            "description": "Type of scam scenario"
+          },
+          "reportedAt": {
+            "type": "string",
+            "description": "ISO timestamp of the call"
+          }
+        },
+        "required": [
+          "phone",
+          "scenarioType"
+        ]
+      },
+      "RiskScoreDto": {
+        "type": "object",
+        "properties": {
+          "claimsGovernment": {
+            "type": "boolean"
+          },
+          "claimsBank": {
+            "type": "boolean"
+          },
+          "demandsImmediateTransfer": {
+            "type": "boolean"
+          },
+          "createsTimePressure": {
+            "type": "boolean"
+          },
+          "threatenedConsequences": {
+            "type": "boolean"
+          },
+          "requestsSecrecy": {
+            "type": "boolean"
+          },
+          "advisesNoConsult": {
+            "type": "boolean"
+          },
+          "involvesMoneytransfer": {
+            "type": "boolean"
+          },
+          "involvesUnknownAccount": {
+            "type": "boolean"
+          },
+          "involvesCryptoOrGiftcard": {
+            "type": "boolean"
+          },
+          "communityReportCount": {
+            "type": "number"
+          },
+          "telcoFlagged": {
+            "type": "boolean"
+          },
+          "spoofDetected": {
+            "type": "boolean"
+          }
+        }
+      },
+      "VerifyTokenDto": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  }
+}

@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// === MODELS ===
+
+model ScamReport {
+  id           String   @id @default(cuid())
+  phoneHash    String
+  scenarioType String
+  reportedAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([phoneHash])
+  @@map("scam_reports")
+}
+
+model RiskScore {
+  id         String   @id @default(cuid())
+  phoneHash  String   @unique
+  score      Int      @default(0)
+  level      String   @default("low")
+  reasons    String[] @default([])
+  confidence Float    @default(0)
+  action     String   @default("allow")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([phoneHash])
+  @@map("risk_scores")
+}
+
+model BannedIp {
+  id        String   @id @default(cuid())
+  ip        String   @unique
+  reason    String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([ip, active])
+  @@map("banned_ips")
+}
+
+model AbuseEvent {
+  id        String    @id @default(cuid())
+  ip        String
+  reason    String
+  banType   String
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([ip, createdAt])
+  @@map("abuse_events")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  phone        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("users")
+}
+
+// === END MODELS ===

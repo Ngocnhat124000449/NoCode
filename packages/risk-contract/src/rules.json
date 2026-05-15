@@ -1,0 +1,21 @@
+{
+  "rules": [
+    { "signal": "claimsGovernment",        "weight": 25, "code": "RC001" },
+    { "signal": "claimsBank",              "weight": 20, "code": "RC002" },
+    { "signal": "demandsImmediateTransfer","weight": 30, "code": "RC010" },
+    { "signal": "createsTimePressure",     "weight": 20, "code": "RC011" },
+    { "signal": "threatenedConsequences",  "weight": 25, "code": "RC012" },
+    { "signal": "requestsSecrecy",         "weight": 20, "code": "RC020" },
+    { "signal": "advisesNoConsult",        "weight": 15, "code": "RC021" },
+    { "signal": "involvesMoneytransfer",   "weight": 15, "code": "RC030" },
+    { "signal": "involvesUnknownAccount",  "weight": 20, "code": "RC031" },
+    { "signal": "involvesCryptoOrGiftcard","weight": 30, "code": "RC031" }
+  ],
+  "communityReportBoost": {
+    "threshold1": 1,  "boost1": 10,
+    "threshold5": 5,  "boost5": 20,
+    "threshold20": 20,"boost20": 30
+  },
+  "telcoFlaggedBoost": 15,
+  "spoofDetectedBoost": 25
+}

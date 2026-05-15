@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files — NEVER commit secrets
+.env
+.env.local
+.env.*.local
+
+# Android build artifacts
+apps/rn-app/android/.gradle/
+apps/rn-app/android/app/build/
+apps/rn-app/android/build/
+apps/rn-app/android/local.properties
+apps/rn-app/.gradle/
+
+# iOS
+apps/rn-app/ios/Pods/
+apps/rn-app/ios/build/
+apps/rn-app/*.xcworkspace
+
+# React Native Metro
+apps/rn-app/.metro-cache/
+
+# Coverage
+coverage/
+
+# Prisma generated client (regenerated at build time)
+node_modules/.prisma/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Screenshots (large binary files)
+*.png
+*.jpg
+*.jpeg
