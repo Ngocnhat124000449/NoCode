@@ -3,7 +3,7 @@
   "installCommand": "pnpm install --frozen-lockfile && pnpm --filter @icproject/hub-api exec npx prisma generate --schema=prisma/schema.prisma",
   "functions": {
     "apps/hub-api/api/index.ts": {
-      "includeFiles": ["apps/hub-api/prisma/**", "node_modules/.prisma/**"]
+      "includeFiles": "apps/hub-api/prisma/**"
     }
   },
   "rewrites": [
