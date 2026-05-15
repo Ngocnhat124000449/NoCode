@@ -33,6 +33,11 @@ coverage/
 # Prisma generated client (regenerated at build time)
 node_modules/.prisma/
 
+# Local env files with secrets — NEVER commit
+.env.vercel
+.env.production
+.env.local
+
 # OS
 .DS_Store
 Thumbs.db
