@@ -5,7 +5,7 @@
   "outputDirectory": "public",
   "builds": [
     {
-      "src": "apps/hub-api/api/index.ts",
+      "src": "api/index.ts",
       "use": "@vercel/node",
       "config": {
         "includeFiles": "apps/hub-api/prisma/**"
@@ -13,6 +13,6 @@
     }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "/apps/hub-api/api/index" }
+    { "src": "/(.*)", "dest": "/api/index" }
   ]
 }

@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2021",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "resolveJsonModule": true,
+    "outDir": "dist"
+  },
+  "include": ["api/**/*", "apps/hub-api/api/**/*", "apps/hub-api/src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
