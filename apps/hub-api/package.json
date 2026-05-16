@@ -75,7 +75,8 @@
     "testEnvironment": "node",
     "moduleNameMapper": {
       "^@icproject/shared(.*)$": "<rootDir>/../../../packages/shared/src$1",
-      "^@icproject/risk-contract(.*)$": "<rootDir>/../../../packages/risk-contract/src$1"
+      "^@icproject/risk-contract(.*)$": "<rootDir>/../../../packages/risk-contract/src$1",
+      "^@prisma/client$": "<rootDir>/generated/prisma"
     }
   },
   "prisma": {

@@ -32,6 +32,7 @@ coverage/
 
 # Prisma generated client (regenerated at build time)
 node_modules/.prisma/
+apps/hub-api/src/generated/
 
 # Local env files with secrets — NEVER commit
 .env.vercel
