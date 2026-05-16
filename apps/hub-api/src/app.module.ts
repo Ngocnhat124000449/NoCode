@@ -23,7 +23,13 @@ import { AuthModule } from './auth/auth.module';
     BullModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        connection: { url: config.get<string>('REDIS_URL', 'redis://localhost:6379') },
+        connection: {
+          url: config.get<string>('REDIS_URL', 'redis://localhost:6379'),
+          lazyConnect: true,
+          enableReadyCheck: false,
+          maxRetriesPerRequest: null,
+          connectTimeout: 5000,
+        },
       }),
     }),
     PrismaModule,
