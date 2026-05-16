@@ -7,8 +7,8 @@ export class BanCheckGuard implements CanActivate {
   constructor(private readonly abuse: AbuseDetectionService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest<Request>();
-    const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown';
+    const req = context.switchToHttp().getRequest<Request & { socket: { remoteAddress?: string } }>();
+    const ip = req.ip ?? req.socket?.remoteAddress ?? 'unknown';
 
     const banned = await this.abuse.isBanned(ip);
     if (banned) {
