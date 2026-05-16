@@ -1,5 +1,4 @@
 import { CanActivate, ExecutionContext, Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { Request } from 'express';
 import { AbuseDetectionService } from './abuse-detection.service';
 
 @Injectable()
@@ -7,8 +6,8 @@ export class BanCheckGuard implements CanActivate {
   constructor(private readonly abuse: AbuseDetectionService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest<Request & { socket: { remoteAddress?: string } }>();
-    const ip = req.ip ?? req.socket?.remoteAddress ?? 'unknown';
+    const req = context.switchToHttp().getRequest();
+    const ip: string = req.ip ?? req.socket?.remoteAddress ?? req.headers?.['x-forwarded-for'] ?? 'unknown';
 
     const banned = await this.abuse.isBanned(ip);
     if (banned) {
