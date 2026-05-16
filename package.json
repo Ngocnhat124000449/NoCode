@@ -11,6 +11,9 @@
   "devDependencies": {
     "typescript": "^5.4.5"
   },
+  "prisma": {
+    "schema": "apps/hub-api/prisma/schema.prisma"
+  },
   "pnpm": {
     "onlyBuiltDependencies": [
       "@nestjs/core",
