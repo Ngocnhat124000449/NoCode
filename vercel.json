@@ -1,6 +1,8 @@
 {
   "version": 2,
   "installCommand": "pnpm install --frozen-lockfile && pnpm --filter @icproject/hub-api exec npx prisma generate --schema=prisma/schema.prisma",
+  "buildCommand": "mkdir -p public",
+  "outputDirectory": "public",
   "builds": [
     {
       "src": "apps/hub-api/api/index.ts",
