@@ -7,10 +7,7 @@
       "src": "api/index.ts",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": [
-          "apps/hub-api/prisma/**",
-          "apps/hub-api/src/generated/prisma/**"
-        ]
+        "includeFiles": "apps/hub-api/prisma/**"
       }
     }
   ],
