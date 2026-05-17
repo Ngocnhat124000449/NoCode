@@ -26,7 +26,7 @@ import { PhoneModule } from '../phone/phone.module';
     PrismaModule,
     PhoneModule,
   ],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, JwtAuthGuard],
   controllers: [AuthController],
   exports: [JwtAuthGuard, JwtModule],
 })
