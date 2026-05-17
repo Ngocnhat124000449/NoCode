@@ -6,7 +6,8 @@
   "scripts": {
     "build": "pnpm -r build",
     "test": "pnpm -r test",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "postinstall": "pnpm --filter @icproject/shared build && pnpm --filter @icproject/risk-contract build && pnpm --filter @icproject/hub-api exec npx prisma generate --schema=prisma/schema.prisma"
   },
   "devDependencies": {
     "typescript": "^5.4.5"
