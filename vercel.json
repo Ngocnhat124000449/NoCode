@@ -9,8 +9,9 @@
       "config": {
         "includeFiles": [
           "apps/hub-api/prisma/**",
-          "packages/shared/dist/**",
-          "packages/risk-contract/dist/**"
+          "packages/shared/**",
+          "packages/risk-contract/**",
+          "apps/hub-api/node_modules/@icproject/**"
         ]
       }
     }
