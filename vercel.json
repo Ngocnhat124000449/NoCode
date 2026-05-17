@@ -1,13 +1,17 @@
 {
   "version": 2,
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm --filter @icproject/hub-api exec npx prisma generate --schema=prisma/schema.prisma",
+  "buildCommand": "pnpm --filter @icproject/shared build && pnpm --filter @icproject/risk-contract build && pnpm --filter @icproject/hub-api exec npx prisma generate --schema=prisma/schema.prisma",
   "builds": [
     {
       "src": "api/index.ts",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": "apps/hub-api/prisma/**"
+        "includeFiles": [
+          "apps/hub-api/prisma/**",
+          "packages/shared/dist/**",
+          "packages/risk-contract/dist/**"
+        ]
       }
     }
   ],
