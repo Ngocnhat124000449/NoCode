@@ -13,6 +13,8 @@ export const REASON_CODES = {
   RC040: 'Number previously reported as scam by community',
   RC041: 'Number flagged as spam by telco data',
   RC042: 'Number spoofed (mismatches caller ID pattern)',
+  RC050: 'Official Vietnamese hotline (verified safe)',
+  RC051: 'Number impersonates known hotline prefix (1900/1800) without registration',
 } as const;
 
 export type ReasonCode = keyof typeof REASON_CODES;

@@ -5,7 +5,7 @@ import { PhoneHashService } from '../phone/phone-hash.service';
 import { MetricsService } from '../metrics/metrics.service';
 import { CACHE_TTL } from '../redis/redis.constants';
 import { RiskScoreDto } from './dto/risk-score.dto';
-import { scoreCall } from '@icproject/risk-contract';
+import { scoreCall, classifyPhone } from '@icproject/risk-contract';
 
 @Injectable()
 export class RiskService {
@@ -47,7 +47,35 @@ export class RiskService {
 
   async lookupByPhone(rawPhone: string) {
     const { hash: phoneHash } = this.phoneHash.hash(rawPhone);
-    return this.getStoredScore(phoneHash);
+    const stored = await this.getStoredScore(phoneHash);
+    if (stored) return stored;
+
+    const classification = classifyPhone(rawPhone);
+    if (classification.kind === 'official') {
+      return {
+        phoneHash,
+        score: 0,
+        level: 'low',
+        reasons: [`[RC050] ${classification.org} — ${classification.label}`],
+        confidence: 1,
+        action: 'allow',
+        source: 'official_whitelist',
+      };
+    }
+    if (classification.kind === 'impersonation_risk') {
+      return {
+        phoneHash,
+        score: 70,
+        level: 'high',
+        reasons: [
+          `[RC051] Đầu số ${classification.matchedPrefix} thường bị giả mạo — số này chưa đăng ký`,
+        ],
+        confidence: 0.85,
+        action: 'verify',
+        source: 'prefix_rule',
+      };
+    }
+    return null;
   }
 
   async getStoredScore(phoneHash: string) {
