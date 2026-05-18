@@ -11,6 +11,7 @@ import { RiskModule } from './risk/risk.module';
 import { MetricsModule } from './metrics/metrics.module';
 import { ThrottleModule } from './throttle/throttle.module';
 import { AuthModule } from './auth/auth.module';
+import { NotificationModule } from './notification/notification.module';
 
 const redisUrl = process.env.REDIS_URL;
 const shouldUseBull = !redisUrl || (/^rediss?:\/\//.test(redisUrl) && !redisUrl.includes('replace_with'));
@@ -48,6 +49,7 @@ const shouldUseBull = !redisUrl || (/^rediss?:\/\//.test(redisUrl) && !redisUrl.
     MetricsModule,
     ThrottleModule,
     AuthModule,
+    NotificationModule,
   ],
 })
 export class AppModule {}
