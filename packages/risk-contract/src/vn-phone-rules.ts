@@ -19,36 +19,102 @@ export const OFFICIAL_NUMBERS: ReadonlyArray<{
   org: string;
   label: string;
 }> = [
-  // Emergency
+  // === EMERGENCY ===
   { phone: '113', org: 'Bộ Công an', label: 'Cảnh sát' },
   { phone: '114', org: 'Bộ Công an', label: 'Cứu hỏa' },
   { phone: '115', org: 'Bộ Y tế', label: 'Cấp cứu' },
   { phone: '111', org: 'Bộ LĐ-TB&XH', label: 'Bảo vệ trẻ em' },
   { phone: '116', org: 'Bộ TT&TT', label: 'Tư vấn pháp luật miễn phí' },
+  { phone: '112', org: 'Quốc phòng', label: 'Tìm kiếm cứu nạn' },
 
-  // Major banks — 1900 hotlines
+  // === GOVERNMENT / PUBLIC SERVICE ===
+  { phone: '1022', org: 'UBND TP.HCM', label: 'Hành chính công' },
+  { phone: '1900099966', org: 'Tổng cục Thuế', label: 'CSKH' },
+  { phone: '19009068', org: 'BHXH Việt Nam', label: 'CSKH' },
+
+  // === ELECTRICITY (EVN) ===
+  { phone: '19001288', org: 'EVN miền Bắc / Hà Nội', label: 'CSKH' },
+  { phone: '1900545454', org: 'EVN HCMC', label: 'CSKH' },
+  { phone: '19001909', org: 'EVN miền Trung', label: 'CSKH' },
+  { phone: '19001006', org: 'EVN miền Nam', label: 'CSKH' },
+
+  // === BANKS — Big 4 + major joint-stock ===
   { phone: '1900545413', org: 'Vietcombank', label: 'CSKH' },
-  { phone: '19001577', org: 'BIDV', label: 'CSKH' },
-  { phone: '19001955', org: 'Techcombank', label: 'CSKH' },
-  { phone: '1900545486', org: 'ACB', label: 'CSKH' },
-  { phone: '19001595', org: 'Sacombank', label: 'CSKH' },
-  { phone: '19001234', org: 'VIB', label: 'CSKH' },
-  { phone: '19001566', org: 'TPBank', label: 'CSKH' },
-  { phone: '18001585', org: 'Vietinbank', label: 'CSKH' },
+  { phone: '19009247', org: 'BIDV', label: 'CSKH' },
+  { phone: '19008198', org: 'Techcombank', label: 'CSKH' },
+  { phone: '19001212', org: 'VietinBank', label: 'CSKH' },
   { phone: '1900558868', org: 'Agribank', label: 'CSKH' },
-  { phone: '19006060', org: 'MB Bank', label: 'CSKH' },
-  { phone: '18006675', org: 'VPBank', label: 'CSKH' },
-  { phone: '19001545', org: 'SHB', label: 'CSKH' },
+  { phone: '1900545486', org: 'ACB', label: 'CSKH' },
+  { phone: '19005555', org: 'Sacombank', label: 'CSKH' },
+  { phone: '19002351', org: 'VIB', label: 'CSKH' },
+  { phone: '19005858', org: 'TPBank', label: 'CSKH' },
+  { phone: '19005454', org: 'MB Bank', label: 'CSKH' },
+  { phone: '19005485', org: 'VPBank', label: 'CSKH' },
+  { phone: '18006115', org: 'SHB', label: 'CSKH' },
+  { phone: '19006060', org: 'HDBank', label: 'CSKH' },
+  { phone: '19006678', org: 'OCB', label: 'CSKH' },
+  { phone: '19006083', org: 'MSB', label: 'CSKH' },
+  { phone: '19005558', org: 'SeABank', label: 'CSKH' },
+  { phone: '18001199', org: 'Eximbank', label: 'CSKH' },
+  { phone: '19006234', org: 'LPBank (LienVietPostBank)', label: 'CSKH' },
 
-  // Telcos
+  // === TELCOS (số ngắn) ===
   { phone: '198', org: 'Viettel', label: 'CSKH' },
-  { phone: '18001091', org: 'VNPT/Vinaphone', label: 'CSKH' },
+  { phone: '9191', org: 'Vinaphone', label: 'CSKH' },
   { phone: '9090', org: 'Mobifone', label: 'CSKH' },
   { phone: '789', org: 'Vietnamobile', label: 'CSKH' },
+  { phone: '199', org: 'Wintel', label: 'CSKH' },
 
-  // E-wallets / payments
-  { phone: '19005555', org: 'Momo', label: 'CSKH' },
-  { phone: '19002126', org: 'ZaloPay', label: 'CSKH' },
+  // === ISP / INTERNET ===
+  { phone: '19006600', org: 'FPT Telecom', label: 'CSKH' },
+  { phone: '18001166', org: 'VNPT Internet', label: 'CSKH' },
+  { phone: '18008119', org: 'Viettel Internet', label: 'CSKH' },
+  { phone: '19001255', org: 'SCTV', label: 'CSKH' },
+  { phone: '19001592', org: 'K+', label: 'CSKH' },
+
+  // === AIRLINES ===
+  { phone: '19001100', org: 'Vietnam Airlines', label: 'CSKH' },
+  { phone: '19001886', org: 'Vietjet Air', label: 'CSKH' },
+  { phone: '19001166', org: 'Bamboo Airways', label: 'CSKH' },
+  { phone: '19001550', org: 'Pacific Airlines', label: 'CSKH' },
+
+  // === POSTAL / DELIVERY ===
+  { phone: '1900545481', org: 'Vietnam Post', label: 'CSKH' },
+  { phone: '19001088', org: 'Viettel Post', label: 'CSKH' },
+  { phone: '19001239', org: 'Giao Hàng Nhanh (GHN)', label: 'CSKH' },
+  { phone: '19001188', org: 'Giao Hàng Tiết Kiệm (GHTK)', label: 'CSKH' },
+  { phone: '19001902', org: 'J&T Express', label: 'CSKH' },
+  { phone: '19006625', org: 'Best Express', label: 'CSKH' },
+
+  // === E-COMMERCE ===
+  { phone: '19001221', org: 'Shopee', label: 'CSKH' },
+  { phone: '19001000', org: 'Lazada', label: 'CSKH' },
+  { phone: '19006035', org: 'Tiki', label: 'CSKH' },
+  { phone: '19006557', org: 'Sendo', label: 'CSKH' },
+
+  // === RIDE HAILING ===
+  { phone: '19006750', org: 'Grab', label: 'CSKH' },
+  { phone: '19002089', org: 'Be', label: 'CSKH' },
+  { phone: '19002088', org: 'Xanh SM (GSM)', label: 'CSKH' },
+
+  // === E-WALLETS / PAYMENTS ===
+  { phone: '19005232', org: 'Momo', label: 'CSKH' },
+  { phone: '1900561558', org: 'ZaloPay', label: 'CSKH' },
+  { phone: '1900555577', org: 'VNPay', label: 'CSKH' },
+  { phone: '18008000', org: 'Viettel Money', label: 'CSKH' },
+
+  // === INSURANCE ===
+  { phone: '1900558899', org: 'Bảo Việt', label: 'CSKH' },
+  { phone: '18001247', org: 'Prudential VN', label: 'CSKH' },
+  { phone: '19001776', org: 'Manulife VN', label: 'CSKH' },
+  { phone: '19001346', org: 'Dai-ichi Life VN', label: 'CSKH' },
+  { phone: '19001877', org: 'AIA VN', label: 'CSKH' },
+  { phone: '19001140', org: 'Generali VN', label: 'CSKH' },
+
+  // === HOSPITALS (private + major public) ===
+  { phone: '19001229', org: 'Vinmec', label: 'CSKH' },
+  { phone: '19009095', org: 'BV Hồng Ngọc', label: 'CSKH' },
+  { phone: '19001717', org: 'FV Hospital', label: 'CSKH' },
 ];
 
 /**
