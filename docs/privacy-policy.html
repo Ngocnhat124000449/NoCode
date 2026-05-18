@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Chính sách quyền riêng tư của ScamShield — Ứng dụng chống lừa đảo qua điện thoại.">
+  <title>Chính sách quyền riêng tư — ScamShield</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="site">
+      <div class="brand">
+        <div class="brand-icon">SS</div>
+        <h1>ScamShield</h1>
+      </div>
+      <nav>
+        <a href="./">Trang chủ</a>
+        <a href="./privacy-policy.html" class="active">Chính sách quyền riêng tư</a>
+        <a href="./terms-of-service.html">Điều khoản sử dụng</a>
+        <a href="./data-deletion.html">Xóa dữ liệu</a>
+      </nav>
+    </header>
+
+    <main>
+      <h2>Chính sách quyền riêng tư</h2>
+      <p class="meta">Có hiệu lực từ ngày 18/05/2026 · Cập nhật lần cuối: 18/05/2026</p>
+
+      <p>Cảm ơn bạn đã sử dụng ScamShield. Chúng tôi cam kết bảo vệ quyền riêng tư của bạn. Tài liệu này giải thích những dữ liệu nào được thu thập, cách sử dụng, và quyền của bạn đối với dữ liệu đó.</p>
+
+      <h3>1. Dữ liệu chúng tôi thu thập</h3>
+
+      <h4>1.1. Dữ liệu tài khoản</h4>
+      <ul>
+        <li><strong>Số điện thoại</strong> — dùng làm tên đăng nhập, được lưu dưới dạng nguyên bản trong cơ sở dữ liệu được mã hóa.</li>
+        <li><strong>Tên hiển thị</strong> — do bạn cung cấp khi đăng ký.</li>
+        <li><strong>Mật khẩu</strong> — không bao giờ lưu nguyên bản; chỉ lưu bản băm (bcrypt) một chiều.</li>
+      </ul>
+
+      <h4>1.2. Dữ liệu cuộc gọi (xử lý cục bộ)</h4>
+      <ul>
+        <li><strong>Số điện thoại đến</strong> — khi có cuộc gọi đến, ứng dụng đọc số điện thoại để tra cứu mức độ rủi ro.</li>
+        <li>Số điện thoại đầu vào được <strong>chuẩn hóa và băm HMAC-SHA256</strong> ngay tại thiết bị trước khi gửi lên máy chủ. Máy chủ <strong>không bao giờ</strong> nhận được số điện thoại nguyên bản của cuộc gọi.</li>
+        <li>Ứng dụng <strong>không</strong> đọc nội dung cuộc gọi, không ghi âm, không truy cập tin nhắn SMS.</li>
+      </ul>
+
+      <h4>1.3. Báo cáo lừa đảo (do bạn chủ động gửi)</h4>
+      <ul>
+        <li>Khi bạn báo cáo một số điện thoại là lừa đảo, chỉ giá trị băm của số đó được lưu lại — không phải số nguyên bản.</li>
+        <li>Loại kịch bản lừa đảo (vd: giả nhân viên ngân hàng) được lưu cùng báo cáo.</li>
+        <li>Thời gian báo cáo được ghi nhận để thống kê.</li>
+      </ul>
+
+      <h4>1.4. Token thiết bị (Firebase Cloud Messaging)</h4>
+      <ul>
+        <li>Mã FCM token (một chuỗi định danh thiết bị do Google cấp) được lưu để gửi cảnh báo cộng đồng đến thiết bị của bạn.</li>
+        <li>Token này không tiết lộ thông tin cá nhân và có thể bị thu hồi bằng cách đăng xuất khỏi ứng dụng.</li>
+      </ul>
+
+      <h4>1.5. Dữ liệu kỹ thuật</h4>
+      <ul>
+        <li>Phiên bản ứng dụng, hệ điều hành Android — để hỗ trợ kỹ thuật.</li>
+        <li>Địa chỉ IP — chỉ lưu tạm thời để chống lạm dụng (rate limiting), tự động xóa sau 7 ngày.</li>
+      </ul>
+
+      <h3>2. Cách chúng tôi sử dụng dữ liệu</h3>
+      <ul>
+        <li><strong>Cung cấp dịch vụ tra cứu rủi ro:</strong> So sánh giá trị băm của số điện thoại với cơ sở dữ liệu các số đã được cộng đồng báo cáo.</li>
+        <li><strong>Cảnh báo cộng đồng:</strong> Gửi thông báo đẩy khi phát hiện số có nhiều báo cáo trong thời gian ngắn.</li>
+        <li><strong>Bảo mật:</strong> Phát hiện và chặn các hành vi lạm dụng API (rate limit, IP ban).</li>
+        <li><strong>Cải thiện sản phẩm:</strong> Phân tích thống kê tổng hợp không chứa thông tin cá nhân.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Cam kết quan trọng:</strong> Chúng tôi <strong>không bán</strong>, <strong>không cho thuê</strong>, và <strong>không chia sẻ</strong> dữ liệu cá nhân của bạn với bên thứ ba vì mục đích quảng cáo hoặc tiếp thị.</p>
+      </div>
+
+      <h3>3. Bên thứ ba</h3>
+      <p>Ứng dụng sử dụng các dịch vụ sau, có chính sách quyền riêng tư riêng:</p>
+      <ul>
+        <li><strong>Vercel</strong> (Vercel Inc.) — hạ tầng máy chủ. <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a></li>
+        <li><strong>Neon</strong> (Neon Inc.) — cơ sở dữ liệu PostgreSQL. <a href="https://neon.tech/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a></li>
+        <li><strong>Firebase Cloud Messaging</strong> (Google LLC) — gửi thông báo đẩy. <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Privacy</a></li>
+      </ul>
+
+      <h3>4. Bảo mật</h3>
+      <ul>
+        <li>Mọi kết nối giữa ứng dụng và máy chủ đều dùng TLS 1.2+ (HTTPS).</li>
+        <li>Mật khẩu được băm bằng bcrypt với salt ngẫu nhiên.</li>
+        <li>Token JWT có hạn 30 ngày, có thể bị thu hồi bằng cách đăng xuất.</li>
+        <li>Số điện thoại được băm HMAC-SHA256 với khóa bí mật trước khi lưu — không thể đảo ngược.</li>
+      </ul>
+
+      <h3>5. Quyền của bạn</h3>
+      <p>Theo Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân, bạn có quyền:</p>
+      <ul>
+        <li><strong>Truy cập</strong> dữ liệu cá nhân chúng tôi đang lưu trữ về bạn.</li>
+        <li><strong>Cập nhật, sửa đổi</strong> thông tin tài khoản bất cứ lúc nào.</li>
+        <li><strong>Xóa</strong> tài khoản và dữ liệu cá nhân — xem hướng dẫn tại <a href="./data-deletion.html">trang Xóa dữ liệu</a>.</li>
+        <li><strong>Rút lại sự đồng ý</strong> — bằng cách đăng xuất hoặc gỡ cài đặt ứng dụng.</li>
+        <li><strong>Khiếu nại</strong> với cơ quan có thẩm quyền nếu cho rằng quyền riêng tư bị xâm phạm.</li>
+      </ul>
+
+      <h3>6. Trẻ em</h3>
+      <p>Ứng dụng không hướng tới trẻ em dưới 13 tuổi. Chúng tôi không cố ý thu thập dữ liệu của trẻ em. Nếu phát hiện đã thu thập, chúng tôi sẽ xóa ngay khi được thông báo.</p>
+
+      <h3>7. Thay đổi chính sách</h3>
+      <p>Chúng tôi có thể cập nhật chính sách này theo thời gian. Khi có thay đổi quan trọng, chúng tôi sẽ thông báo trong ứng dụng ít nhất 7 ngày trước khi có hiệu lực. Tiếp tục sử dụng ứng dụng sau ngày hiệu lực đồng nghĩa với việc chấp nhận chính sách mới.</p>
+
+      <h3>8. Liên hệ</h3>
+      <p>Mọi câu hỏi về chính sách này, vui lòng liên hệ:</p>
+      <ul>
+        <li>Email: <a href="mailto:nguyenngocnhat.124000449.lhu@gmail.com">nguyenngocnhat.124000449.lhu@gmail.com</a></li>
+      </ul>
+    </main>
+
+    <footer>
+      © 2026 ScamShield Project. Phát triển trong khuôn khổ ICProject 2026.
+    </footer>
+  </div>
+</body>
+</html>

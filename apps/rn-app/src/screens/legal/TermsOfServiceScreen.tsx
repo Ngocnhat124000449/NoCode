@@ -10,7 +10,7 @@ import { RootStackParamList } from '../../navigation/AppNavigator';
 
 type Route = RouteProp<RootStackParamList, 'TermsOfService'>;
 
-const TERMS_URL = 'https://scamshield.vn/terms';
+const TERMS_URL = 'https://ngocnhat124000449.github.io/NoCode/terms-of-service.html';
 
 export function TermsOfServiceScreen() {
   const { theme } = useTheme();

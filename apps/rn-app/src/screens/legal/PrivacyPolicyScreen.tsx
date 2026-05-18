@@ -4,7 +4,7 @@ import WebView from 'react-native-webview';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/layout/ScreenHeader';
 
-const PRIVACY_URL = 'https://scamshield.vn/privacy-policy';
+const PRIVACY_URL = 'https://ngocnhat124000449.github.io/NoCode/privacy-policy.html';
 
 export function PrivacyPolicyScreen() {
   const { theme } = useTheme();
