@@ -12,6 +12,9 @@ import { MetricsModule } from './metrics/metrics.module';
 import { ThrottleModule } from './throttle/throttle.module';
 import { AuthModule } from './auth/auth.module';
 
+const redisUrl = process.env.REDIS_URL;
+const shouldUseBull = !redisUrl || (/^rediss?:\/\//.test(redisUrl) && !redisUrl.includes('replace_with'));
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -20,18 +23,22 @@ import { AuthModule } from './auth/auth.module';
       { name: 'report', ttl: 60000, limit: 5  },
       { name: 'lookup', ttl: 60000, limit: 30 },
     ]),
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        connection: {
-          url: config.get<string>('REDIS_URL', 'redis://localhost:6379'),
-          lazyConnect: true,
-          enableReadyCheck: false,
-          maxRetriesPerRequest: null,
-          connectTimeout: 5000,
-        },
-      }),
-    }),
+    ...(shouldUseBull
+      ? [
+          BullModule.forRootAsync({
+            inject: [ConfigService],
+            useFactory: (config: ConfigService) => ({
+              connection: {
+                url: config.get<string>('REDIS_URL', 'redis://localhost:6379'),
+                lazyConnect: true,
+                enableReadyCheck: false,
+                maxRetriesPerRequest: null,
+                connectTimeout: 5000,
+              },
+            }),
+          }),
+        ]
+      : []),
     PrismaModule,
     RedisModule,
     PhoneModule,

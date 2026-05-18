@@ -29,6 +29,7 @@ describe('ReportQueueProducer', () => {
           provide: getQueueToken(QUEUE_NAMES.REPORT_PROCESSING),
           useValue: mockQueue,
         },
+        { provide: PrismaService, useValue: mockPrisma },
       ],
     }).compile();
 
@@ -90,6 +91,27 @@ describe('ReportQueueProducer', () => {
 
       expect(mockQueue.add).toHaveBeenCalledTimes(1);
       expect(elapsed).toBeLessThan(50);
+    });
+
+    it('writes directly when queue provider is unavailable', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          ReportQueueProducer,
+          { provide: PrismaService, useValue: mockPrisma },
+        ],
+      }).compile();
+      const fallbackProducer = module.get<ReportQueueProducer>(ReportQueueProducer);
+
+      const result = await fallbackProducer.enqueueScamReport(payload);
+
+      expect(result).toEqual({ jobId: 'report-001' });
+      expect(mockPrisma.scamReport.create).toHaveBeenCalledWith({
+        data: {
+          phoneHash: payload.phoneHash,
+          scenarioType: payload.scenarioType,
+          reportedAt: payload.reportedAt,
+        },
+      });
     });
   });
 });
