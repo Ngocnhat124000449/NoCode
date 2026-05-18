@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, SafeAreaView, Linking } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View, Text, ScrollView, SafeAreaView, Linking,
+  PermissionsAndroid, Platform, AppState,
+} from 'react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { spacing, typography, radius } from '../../theme/tokens';
 import { Button } from '../../components/ui/Button';
@@ -63,11 +66,97 @@ function PermCard({ icon, title, description, steps, status, onRequest, required
   );
 }
 
+function mapResult(result: string): PermStatus {
+  if (result === PermissionsAndroid.RESULTS.GRANTED) return 'granted';
+  if (result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) return 'blocked';
+  return 'denied';
+}
+
+async function checkPermission(permission: string | null): Promise<PermStatus> {
+  if (!permission) return 'granted';
+  try {
+    const granted = await PermissionsAndroid.check(permission as any);
+    return granted ? 'granted' : 'denied';
+  } catch {
+    return 'denied';
+  }
+}
+
+async function requestPermission(
+  permission: string | null,
+  title: string,
+  message: string,
+): Promise<PermStatus> {
+  if (!permission) return 'granted';
+  try {
+    const result = await PermissionsAndroid.request(permission as any, {
+      title,
+      message,
+      buttonPositive: 'Cấp quyền',
+      buttonNegative: 'Từ chối',
+      buttonNeutral: 'Để sau',
+    });
+    return mapResult(result);
+  } catch {
+    return 'denied';
+  }
+}
+
 export function PermissionManagementScreen() {
   const { theme } = useTheme();
-  const [callStatus, setCallStatus]       = useState<PermStatus>('granted');
-  const [notifStatus, setNotifStatus]     = useState<PermStatus>('denied');
-  const [contactStatus, setContactStatus] = useState<PermStatus>('blocked');
+  const [callStatus, setCallStatus] = useState<PermStatus>('denied');
+  const [notifStatus, setNotifStatus] = useState<PermStatus>('denied');
+  const [contactStatus, setContactStatus] = useState<PermStatus>('denied');
+
+  const NOTIF_PERMISSION = Platform.OS === 'android' && typeof Platform.Version === 'number' && Platform.Version >= 33
+    ? 'android.permission.POST_NOTIFICATIONS'
+    : null;
+
+  const refreshAll = useCallback(async () => {
+    if (Platform.OS !== 'android') {
+      setCallStatus('granted');
+      setNotifStatus('granted');
+      setContactStatus('granted');
+      return;
+    }
+    setCallStatus(await checkPermission(PermissionsAndroid.PERMISSIONS.READ_CALL_LOG));
+    setContactStatus(await checkPermission(PermissionsAndroid.PERMISSIONS.READ_CONTACTS));
+    setNotifStatus(await checkPermission(NOTIF_PERMISSION));
+  }, [NOTIF_PERMISSION]);
+
+  useEffect(() => {
+    refreshAll();
+    // When the user returns from Settings, re-read permission status so the
+    // UI reflects any change they made there.
+    const sub = AppState.addEventListener('change', state => {
+      if (state === 'active') refreshAll();
+    });
+    return () => sub.remove();
+  }, [refreshAll]);
+
+  const handleCallRequest = async () => {
+    setCallStatus(await requestPermission(
+      PermissionsAndroid.PERMISSIONS.READ_CALL_LOG,
+      'Sàng lọc cuộc gọi',
+      'ScamShield cần đọc lịch sử cuộc gọi để phân tích và cảnh báo cuộc gọi đáng ngờ.',
+    ));
+  };
+
+  const handleNotifRequest = async () => {
+    setNotifStatus(await requestPermission(
+      NOTIF_PERMISSION,
+      'Thông báo',
+      'Cho phép ScamShield gửi cảnh báo rủi ro cao khi có cuộc gọi đáng ngờ.',
+    ));
+  };
+
+  const handleContactRequest = async () => {
+    setContactStatus(await requestPermission(
+      PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+      'Danh bạ',
+      'Giúp ScamShield nhận ra số lạ không có trong danh bạ — bổ sung tín hiệu cảnh báo.',
+    ));
+  };
 
   return (
     <SafeAreaView testID="permission-management-screen" style={{ flex: 1, backgroundColor: theme.colors.bgSecondary }}>
@@ -78,7 +167,7 @@ export function PermissionManagementScreen() {
           title="Sàng lọc cuộc gọi"
           description="Phân tích cuộc gọi đến theo thời gian thực và hiển thị cảnh báo."
           status={callStatus}
-          onRequest={() => setCallStatus('granted')}
+          onRequest={handleCallRequest}
           required
         />
         <PermCard
@@ -91,7 +180,7 @@ export function PermissionManagementScreen() {
             'Chọn Thông báo → Bật tất cả',
           ]}
           status={notifStatus}
-          onRequest={() => setNotifStatus('granted')}
+          onRequest={handleNotifRequest}
           required
         />
         <PermCard
@@ -104,7 +193,7 @@ export function PermissionManagementScreen() {
             'Bật Danh bạ',
           ]}
           status={contactStatus}
-          onRequest={() => setContactStatus('granted')}
+          onRequest={handleContactRequest}
         />
       </ScrollView>
     </SafeAreaView>
