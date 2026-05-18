@@ -828,3 +828,31 @@ Title + heading tiếng Việt verified
 **Bước tiếp theo:** Hoàn thiện trước khi qua Phase 10 — E2E test, run all tests, kiểm tra uncommitted files.
 
 ---
+
+## [phase10-release-apk] — 12:49:19 18/5/2026
+
+**Trạng thái:** ✅ Pass — APK release signed, đã verify chạy thật trên emulator
+
+**Mô tả:** Build APK release ký số PKCS12 RSA 2048-bit valid 100 năm. Fix RN 0.73 + pnpm + Windows monorepo issues. Build 25MB APK không cần Metro.
+
+**Files thay đổi (commit 89a3c1f):**
+- apps/rn-app/android/app/scamshield-release.keystore (gitignored)
+- apps/rn-app/android/app/build.gradle (signing + HUB_API_URL Vercel)
+- apps/rn-app/.npmrc (node-linker hoisted)
+- apps/rn-app/metro.config.js (monorepo resolution)
+- apps/rn-app/package.json (pin RN 0.73 compatible deps)
+
+**Keystore:**
+- File: apps/rn-app/android/app/scamshield-release.keystore
+- Alias: scamshield, password: scamshield2026
+- SHA-256: EF:3E:D0:CA:9E:70:26:FA:34:F8:E9:F4:69:41:DB:EF:67:81:56:D3:79:35:4F:D5:7E:96:55:9D:B0:E9:BC:E9
+
+**Kết quả:**
+- ./gradlew assembleRelease → BUILD SUCCESSFUL in 3m 12s
+- APK: app-release.apk (25,106,186 bytes)
+- adb install Success, app launch OnboardingScreen tiếng Việt hiển thị đúng
+- HUB_API_URL = https://duan6-lemon.vercel.app
+
+**Bước tiếp theo:** Submit Play Store (bundleRelease AAB), hoặc phân phối trực tiếp APK qua Drive/GitHub Release.
+
+---
