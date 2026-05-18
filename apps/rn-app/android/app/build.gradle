@@ -82,7 +82,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
-        buildConfigField "String", "HUB_API_URL", '"https://api.scamshield.vn"'
+        buildConfigField "String", "HUB_API_URL", '"https://duan6-lemon.vercel.app"'
     }
 
     buildFeatures {
@@ -95,15 +95,21 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            // Reads from gradle.properties / env so secrets stay out of git.
+            // CI can override via -PSCAMSHIELD_STORE_PASSWORD=... etc.
+            storeFile file(System.getenv("SCAMSHIELD_KEYSTORE") ?: "scamshield-release.keystore")
+            storePassword System.getenv("SCAMSHIELD_STORE_PASSWORD") ?: project.findProperty("SCAMSHIELD_STORE_PASSWORD") ?: "scamshield2026"
+            keyAlias System.getenv("SCAMSHIELD_KEY_ALIAS") ?: "scamshield"
+            keyPassword System.getenv("SCAMSHIELD_KEY_PASSWORD") ?: project.findProperty("SCAMSHIELD_KEY_PASSWORD") ?: "scamshield2026"
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }

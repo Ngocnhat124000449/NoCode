@@ -63,3 +63,7 @@ Claude.md
 
 # Legacy Phase 3 mobile folder, replaced by apps/rn-app/
 apps/mobile/
+
+# Release signing keystore — NEVER commit (lose this = cannot update app)
+apps/rn-app/android/app/*.keystore
+apps/rn-app/android/app/release.properties
