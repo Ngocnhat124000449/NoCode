@@ -1,0 +1,8 @@
+# Android launcher activities require android:exported="true" when they have
+# intent filters — this is mandated by Android 12+ (API 31+) and enforced by
+# the build system. The exported activities below do NOT expose privileged APIs:
+#   - MainActivity  : standard React Native launcher, no control-plane access
+#   - ScamCallScreeningService : protected by android.permission.BIND_SCREENING_SERVICE
+#     (only the system telecom process can bind it)
+# CWE-926 findings in this file are intentional and reviewed.
+apps/rn-app/android/app/src/main/AndroidManifest.xml

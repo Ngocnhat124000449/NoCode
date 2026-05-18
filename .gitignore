@@ -54,3 +54,12 @@ Thumbs.db
 .mcp.json
 push-env-to-vercel.sh
 apps/rn-app/android/app/google-services.json
+
+# Build / debug logs (per-machine, not for repo)
+log.md
+
+# Case-only duplicate of CLAUDE.md created by Windows
+Claude.md
+
+# Legacy Phase 3 mobile folder, replaced by apps/rn-app/
+apps/mobile/

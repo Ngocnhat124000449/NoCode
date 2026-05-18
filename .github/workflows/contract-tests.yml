@@ -1,0 +1,92 @@
+name: Contract Tests
+
+on:
+  pull_request:
+    paths:
+      - 'apps/hub-api/src/**'
+      - 'apps/mobile/src/api/**'
+      - 'packages/risk-contract/src/**'
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: icproject_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run Prisma migrations
+        working-directory: apps/hub-api
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://postgres:password@localhost:5432/icproject_test
+
+      - name: Install Playwright
+        working-directory: apps/hub-api
+        run: npx playwright install --with-deps chromium
+
+      - name: Start Hub API
+        working-directory: apps/hub-api
+        run: pnpm start:prod &
+        env:
+          DATABASE_URL: postgresql://postgres:password@localhost:5432/icproject_test
+          REDIS_URL: redis://localhost:6379
+          PHONE_HMAC_SECRET: ci_test_hmac_secret_minimum_32_characters_long
+          RISK_TOKEN_SECRET: ci_test_risk_token_jwt_secret_must_be_at_least_64_characters_long
+          RISK_TOKEN_TTL_SECONDS: 600
+          PORT: 3000
+
+      - name: Wait for API to be ready
+        run: |
+          for i in $(seq 1 15); do
+            curl -sf http://localhost:3000/risk/score -X POST -H "Content-Type: application/json" -d '{}' && break
+            sleep 2
+          done
+
+      - name: Run contract tests
+        working-directory: apps/hub-api
+        run: npx playwright test --config=playwright.contract.config.ts
+        env:
+          API_BASE_URL: http://localhost:3000
+
+      - name: Upload contract test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-results
+          path: apps/hub-api/contract-results.json
