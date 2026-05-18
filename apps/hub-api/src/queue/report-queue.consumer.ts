@@ -30,6 +30,7 @@ export class ReportQueueConsumer extends WorkerHost {
       data: {
         phoneHash: data.phoneHash,
         scenarioType: data.scenarioType,
+        reporterId: data.reporterId,
         reportedAt: data.reportedAt ? new Date(data.reportedAt) : new Date(),
       },
     });

@@ -17,11 +17,15 @@ model ScamReport {
   id           String   @id @default(cuid())
   phoneHash    String
   scenarioType String
+  reporterId   String?
   reportedAt   DateTime @default(now())
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  reporter     User?    @relation(fields: [reporterId], references: [id], onDelete: SetNull)
+
   @@index([phoneHash])
+  @@index([reporterId])
   @@map("scam_reports")
 }
 
@@ -72,6 +76,7 @@ model User {
   updatedAt    DateTime @updatedAt
 
   devices      Device[]
+  reports      ScamReport[]
 
   @@map("users")
 }

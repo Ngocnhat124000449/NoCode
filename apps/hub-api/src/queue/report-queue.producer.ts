@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export interface ScamReportPayload {
   phoneHash: string;
   scenarioType: string;
+  reporterId?: string;
   reportedAt: Date;
 }
 
@@ -27,6 +28,7 @@ export class ReportQueueProducer {
         data: {
           phoneHash: payload.phoneHash,
           scenarioType: payload.scenarioType,
+          reporterId: payload.reporterId,
           reportedAt: payload.reportedAt ? new Date(payload.reportedAt) : new Date(),
         },
       });

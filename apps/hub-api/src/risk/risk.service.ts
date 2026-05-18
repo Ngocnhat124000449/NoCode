@@ -56,6 +56,8 @@ export class RiskService {
         confidence: 1,
         action: 'allow',
         source: 'official_whitelist',
+        reportCount: 0,
+        recentReports: [],
       };
     }
     if (classification.kind === 'impersonation_risk') {
@@ -68,12 +70,26 @@ export class RiskService {
         confidence: 0.85,
         action: 'verify',
         source: 'prefix_rule',
+        reportCount: 0,
+        recentReports: [],
       };
     }
 
     try {
       const { hash: phoneHash } = this.phoneHash.hash(rawPhone);
-      return await this.getStoredScore(phoneHash);
+      const stored = (await this.getStoredScore(phoneHash)) as Record<string, unknown> | null;
+      if (!stored) return null;
+
+      // Enrich with community report stats so the RiskDetail screen has data
+      // to render without a second round-trip.
+      const reportCount = await this.prisma.scamReport.count({ where: { phoneHash } });
+      const recentReports = await this.prisma.scamReport.findMany({
+        where: { phoneHash },
+        orderBy: { reportedAt: 'desc' },
+        take: 3,
+        select: { id: true, scenarioType: true, reportedAt: true },
+      });
+      return { ...stored, reportCount, recentReports };
     } catch {
       return null;
     }
