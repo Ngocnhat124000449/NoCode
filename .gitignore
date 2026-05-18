@@ -67,3 +67,8 @@ apps/mobile/
 # Release signing keystore — NEVER commit (lose this = cannot update app)
 apps/rn-app/android/app/*.keystore
 apps/rn-app/android/app/release.properties
+
+# Built APKs — too large for git, store on Drive/Release page instead.
+# History is tracked via versionCode + CHANGELOG.md.
+releases/*.apk
+releases/*.aab
