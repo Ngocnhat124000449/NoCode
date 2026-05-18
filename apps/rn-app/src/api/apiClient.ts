@@ -92,3 +92,23 @@ export const reportApi = {
       body: JSON.stringify(data),
     }),
 };
+
+export interface RegisterDeviceRequest {
+  fcmToken: string;
+  platform?: 'android' | 'ios';
+  appVersion?: string;
+}
+
+export const devicesApi = {
+  register: (data: RegisterDeviceRequest) =>
+    request<{ id: string; lastSeenAt: string }>('/devices/register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  unregister: (fcmToken: string) =>
+    request<void>('/devices/register', {
+      method: 'DELETE',
+      body: JSON.stringify({ fcmToken }),
+    }),
+};

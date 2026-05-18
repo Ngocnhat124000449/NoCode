@@ -90,10 +90,7 @@ export class NotificationService implements OnModuleInit {
       tokens,
       notification: { title: message.title, body: message.body },
       data: message.data ?? {},
-      android: {
-        priority: 'high',
-        notification: { channelId: 'scamshield-alerts' },
-      },
+      android: { priority: 'high' },
     });
 
     // Clean up tokens that the FCM service says are no longer valid.

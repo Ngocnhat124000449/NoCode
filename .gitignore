@@ -53,3 +53,4 @@ Thumbs.db
 # MCP config (per-machine, do not commit)
 .mcp.json
 push-env-to-vercel.sh
+apps/rn-app/android/app/google-services.json
