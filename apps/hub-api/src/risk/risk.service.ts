@@ -46,14 +46,10 @@ export class RiskService {
   }
 
   async lookupByPhone(rawPhone: string) {
-    const { hash: phoneHash } = this.phoneHash.hash(rawPhone);
-    const stored = await this.getStoredScore(phoneHash);
-    if (stored) return stored;
-
     const classification = classifyPhone(rawPhone);
+
     if (classification.kind === 'official') {
       return {
-        phoneHash,
         score: 0,
         level: 'low',
         reasons: [`[RC050] ${classification.org} — ${classification.label}`],
@@ -64,7 +60,6 @@ export class RiskService {
     }
     if (classification.kind === 'impersonation_risk') {
       return {
-        phoneHash,
         score: 70,
         level: 'high',
         reasons: [
@@ -75,7 +70,13 @@ export class RiskService {
         source: 'prefix_rule',
       };
     }
-    return null;
+
+    try {
+      const { hash: phoneHash } = this.phoneHash.hash(rawPhone);
+      return await this.getStoredScore(phoneHash);
+    } catch {
+      return null;
+    }
   }
 
   async getStoredScore(phoneHash: string) {
