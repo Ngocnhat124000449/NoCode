@@ -80,8 +80,8 @@ android {
         applicationId "vn.scamshield.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "1.0.1"
+        versionCode 3
+        versionName "1.0.2"
         buildConfigField "String", "HUB_API_URL", '"https://duan6-lemon.vercel.app"'
     }
 

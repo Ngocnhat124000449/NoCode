@@ -68,15 +68,29 @@ export const authApi = {
     }),
 };
 
+export interface RiskRecentReport {
+  id: string;
+  scenarioType: string;
+  reportedAt: string;
+}
+
 export interface RiskLookupResponse {
   score: number;
   level: string;
   reasons: string[];
+  confidence: number;
+  action: string;
+  source?: string;
+  reportCount: number;
+  recentReports: RiskRecentReport[];
+  phoneHash?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export const riskApi = {
   lookup: (phone: string) =>
-    request<RiskLookupResponse>(`/risk/lookup?phone=${encodeURIComponent(phone)}`),
+    request<RiskLookupResponse | null>(`/risk/lookup?phone=${encodeURIComponent(phone)}`),
 };
 
 export interface CreateReportRequest {
@@ -85,12 +99,36 @@ export interface CreateReportRequest {
   description?: string;
 }
 
+export interface ReportItem {
+  id: string;
+  phoneHash: string;
+  scenarioType: string;
+  reporterId: string | null;
+  reportedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UserStatsResponse {
+  reportCount: number;
+  trustScore: number;
+}
+
 export const reportApi = {
   create: (data: CreateReportRequest) =>
-    request<{ id: string }>('/report', {
+    request<{ jobId: string }>('/report', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  myReports: () =>
+    request<{ items: ReportItem[]; total: number }>('/me/reports'),
+
+  myStats: () =>
+    request<UserStatsResponse>('/me/stats'),
+
+  getById: (id: string) =>
+    request<ReportItem>(`/reports/${encodeURIComponent(id)}`),
 };
 
 export interface RegisterDeviceRequest {

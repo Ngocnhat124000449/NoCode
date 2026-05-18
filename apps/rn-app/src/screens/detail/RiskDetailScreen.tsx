@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
-  View, Text, ScrollView, SafeAreaView, StyleSheet, Linking,
+  View, Text, ScrollView, SafeAreaView, StyleSheet, Linking, ActivityIndicator,
 } from 'react-native';
-import { useRoute, RouteProp } from '@react-navigation/native';
-import { useNavigation } from '@react-navigation/native';
+import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../../theme/ThemeContext';
 import { spacing, typography } from '../../theme/tokens';
@@ -11,114 +10,176 @@ import { Button } from '../../components/ui/Button';
 import { Card, Divider, Row } from '../../components/ui/Card';
 import { RiskBadge } from '../../components/ui/RiskBadge';
 import { ScoreCircle } from '../../components/ui/ScoreCircle';
-import { ScreenHeader, SectionHeader } from '../../components/layout/ScreenHeader';
+import { ScreenHeader, SectionHeader, EmptyState } from '../../components/layout/ScreenHeader';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 import { formatPhone, formatRelativeTime, getRiskFromScore } from '../../utils/riskUtils';
+import { riskApi, RiskLookupResponse } from '../../api/apiClient';
 
-type Nav   = NativeStackNavigationProp<RootStackParamList>;
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 type Route = RouteProp<RootStackParamList, 'RiskDetail'>;
 
-const MOCK = {
-  score: 97, confidence: 89, reportCount: 142,
-  updatedAt: new Date(Date.now() - 3600000).toISOString(),
-  reasons: [
-    { code: 'RC001', title: 'Mạo danh cơ quan nhà nước', description: 'Tự xưng là công an, viện kiểm sát, hay cơ quan nhà nước.', weight: 0.9 },
-    { code: 'RC010', title: 'Thúc ép chuyển tiền', description: 'Yêu cầu chuyển tiền ngay lập tức không cho thời gian kiểm tra.', weight: 0.85 },
-    { code: 'RC020', title: 'Yêu cầu giữ bí mật', description: 'Dặn dò không được kể cho người thân hay bạn bè nghe.', weight: 0.7 },
-  ],
-  community: [
-    { user: 'Ẩn danh', type: 'Mạo danh', time: new Date(Date.now() - 7200000).toISOString(), confirmCount: 15 },
-    { user: 'Ẩn danh', type: 'Thúc ép tiền', time: new Date(Date.now() - 86400000).toISOString(), confirmCount: 8 },
-  ],
-};
+/**
+ * Parse a "[RC040] Giả mạo nhân viên ngân hàng" string into structured pieces.
+ * If the backend ever stops bracketing reasons, fall back to the full string
+ * so we still render something useful.
+ */
+function parseReason(raw: string): { code: string; title: string } {
+  const match = raw.match(/^\[(RC\d+)\]\s*(.+)$/);
+  if (!match) return { code: '?', title: raw };
+  return { code: match[1], title: match[2] };
+}
 
 export function RiskDetailScreen() {
   const { theme } = useTheme();
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { phone } = route.params;
-  const level = getRiskFromScore(MOCK.score);
+
+  const [data, setData] = useState<RiskLookupResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setNotFound(false);
+    try {
+      const result = await riskApi.lookup(phone);
+      if (result) setData(result); else setNotFound(true);
+    } catch {
+      setNotFound(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [phone]);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.safe, { backgroundColor: theme.colors.bgSecondary }]}>
+        <ScreenHeader leftAction="back" title={formatPhone(phone)} />
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator color={theme.colors.accent} size="large" />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (notFound || !data) {
+    return (
+      <SafeAreaView style={[styles.safe, { backgroundColor: theme.colors.bgSecondary }]}>
+        <ScreenHeader leftAction="back" title={formatPhone(phone)} />
+        <View style={{ flex: 1, justifyContent: 'center', padding: spacing.xl }}>
+          <EmptyState
+            icon="search"
+            message={`Chưa có dữ liệu cảnh báo cho số ${formatPhone(phone)}.\nNếu bạn nghi ngờ, hãy gửi báo cáo để cộng đồng cùng cảnh giác.`}
+          />
+          <Button
+            label="Báo cáo số này"
+            variant="primary"
+            fullWidth
+            onPress={() => (navigation as any).navigate('Report')}
+            style={{ marginTop: spacing.lg }}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const level = getRiskFromScore(data.score) as 'critical' | 'high' | 'medium' | 'low';
+  const confidencePct = Math.round((data.confidence ?? 0) * 100);
+  const reasons = (data.reasons ?? []).map(parseReason);
 
   return (
     <SafeAreaView testID="risk-detail-screen" style={[styles.safe, { backgroundColor: theme.colors.bgSecondary }]}>
       <ScreenHeader leftAction="back" title={formatPhone(phone)} />
       <ScrollView>
         <Card style={{ margin: spacing.lg, alignItems: 'center' }}>
-          <ScoreCircle score={MOCK.score} size={100} animated />
+          <ScoreCircle score={data.score} size={100} animated />
           <Text style={[typography.h3, { color: theme.colors.textPrimary, marginTop: spacing.md }]}>
             {formatPhone(phone)}
           </Text>
           <RiskBadge level={level} size="md" style={{ marginTop: spacing.sm }} />
           <Text style={[typography.caption, { color: theme.colors.textSecondary, marginTop: spacing.sm }]}>
-            {MOCK.reportCount} báo cáo · Độ tin cậy {MOCK.confidence}%
+            {data.reportCount} báo cáo · Độ tin cậy {confidencePct}%
           </Text>
-          <Text style={[typography.caption, { color: theme.colors.textSecondary }]}>
-            Cập nhật {formatRelativeTime(MOCK.updatedAt)}
-          </Text>
+          {data.updatedAt ? (
+            <Text style={[typography.caption, { color: theme.colors.textSecondary }]}>
+              Cập nhật {formatRelativeTime(data.updatedAt)}
+            </Text>
+          ) : null}
         </Card>
 
         <Card style={{ marginHorizontal: spacing.lg, marginTop: spacing.sm }}>
           <Row style={{ justifyContent: 'space-between', marginBottom: spacing.sm }}>
             <Text style={[typography.label, { color: theme.colors.textSecondary }]}>Độ tin cậy dữ liệu</Text>
-            <Text style={[typography.label, { color: theme.colors.accent }]}>{MOCK.confidence}%</Text>
+            <Text style={[typography.label, { color: theme.colors.accent }]}>{confidencePct}%</Text>
           </Row>
           <View style={[styles.progressBg, { backgroundColor: theme.colors.bgTertiary }]}>
-            <View style={[styles.progressFill, { width: `${MOCK.confidence}%` as any, backgroundColor: theme.colors.accent }]} />
+            <View style={[styles.progressFill, { width: `${confidencePct}%` as any, backgroundColor: theme.colors.accent }]} />
           </View>
           <Text style={[typography.caption, { color: theme.colors.textSecondary, marginTop: spacing.sm }]}>
-            Dựa trên {MOCK.reportCount} báo cáo từ cộng đồng
+            Dựa trên {data.reportCount} báo cáo từ cộng đồng
           </Text>
         </Card>
 
         <SectionHeader title="Chi tiết lý do" style={{ marginHorizontal: spacing.lg, marginTop: spacing.lg }} />
         <Card style={{ marginHorizontal: spacing.lg, marginTop: spacing.sm }}>
-          {MOCK.reasons.map((reason, i) => (
-            <React.Fragment key={reason.code}>
-              <View style={{ paddingVertical: spacing.md }}>
-                <Row style={{ gap: spacing.sm }}>
-                  <Text style={{ color: reason.weight > 0.8 ? theme.colors.danger : theme.colors.warning, fontSize: 16 }}>⚠</Text>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[typography.bodySmall, { color: theme.colors.textPrimary, fontWeight: '600' }]}>
-                      [{reason.code}] {reason.title}
-                    </Text>
-                    <Text style={[typography.caption, { color: theme.colors.textSecondary, marginTop: 4 }]}>
-                      {reason.description}
-                    </Text>
-                  </View>
-                </Row>
-              </View>
-              {i < MOCK.reasons.length - 1 && <Divider />}
-            </React.Fragment>
-          ))}
+          {reasons.length === 0 ? (
+            <Text style={[typography.bodySmall, { color: theme.colors.textSecondary, paddingVertical: spacing.md }]}>
+              Không có lý do cảnh báo cụ thể.
+            </Text>
+          ) : (
+            reasons.map((reason, i) => (
+              <React.Fragment key={`${reason.code}-${i}`}>
+                <View style={{ paddingVertical: spacing.md }}>
+                  <Row style={{ gap: spacing.sm }}>
+                    <Text style={{ color: theme.colors.danger, fontSize: 16 }}>⚠</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[typography.bodySmall, { color: theme.colors.textPrimary, fontWeight: '600' }]}>
+                        [{reason.code}] {reason.title}
+                      </Text>
+                    </View>
+                  </Row>
+                </View>
+                {i < reasons.length - 1 && <Divider />}
+              </React.Fragment>
+            ))
+          )}
         </Card>
 
         <SectionHeader
-          title="Báo cáo từ cộng đồng"
-          actionLabel={`${MOCK.reportCount} báo cáo`}
+          title="Báo cáo gần nhất"
+          actionLabel={`${data.reportCount} báo cáo`}
           style={{ marginHorizontal: spacing.lg, marginTop: spacing.lg }}
         />
         <Card style={{ marginHorizontal: spacing.lg, marginTop: spacing.sm }}>
-          {MOCK.community.map((c, i) => (
-            <React.Fragment key={i}>
-              <View style={{ paddingVertical: spacing.md }}>
-                <Row style={{ justifyContent: 'space-between' }}>
-                  <Text style={[typography.bodySmall, { color: theme.colors.textPrimary }]}>{c.type}</Text>
-                  <Text style={[typography.caption, { color: theme.colors.textSecondary }]}>
-                    {c.confirmCount} xác nhận
-                  </Text>
-                </Row>
-                <Text style={[typography.caption, { color: theme.colors.textSecondary }]}>
-                  {formatRelativeTime(c.time)}
-                </Text>
-              </View>
-              {i < MOCK.community.length - 1 && <Divider />}
-            </React.Fragment>
-          ))}
+          {data.recentReports.length === 0 ? (
+            <Text style={[typography.bodySmall, { color: theme.colors.textSecondary, paddingVertical: spacing.md }]}>
+              Chưa có báo cáo nào trong cơ sở dữ liệu cộng đồng.
+            </Text>
+          ) : (
+            data.recentReports.map((report, i) => (
+              <React.Fragment key={report.id}>
+                <View style={{ paddingVertical: spacing.md }}>
+                  <Row style={{ justifyContent: 'space-between' }}>
+                    <Text style={[typography.bodySmall, { color: theme.colors.textPrimary }]}>
+                      {report.scenarioType}
+                    </Text>
+                    <Text style={[typography.caption, { color: theme.colors.textSecondary }]}>
+                      {formatRelativeTime(report.reportedAt)}
+                    </Text>
+                  </Row>
+                </View>
+                {i < data.recentReports.length - 1 && <Divider />}
+              </React.Fragment>
+            ))
+          )}
         </Card>
 
         <View style={{ marginHorizontal: spacing.lg, marginTop: spacing.md, marginBottom: spacing.xl, gap: spacing.sm }}>
           <Button label="Không chuyển tiền" onPress={() => {}} variant="danger" fullWidth testID="btn-dont-transfer" />
-          <Button label="Gọi số chính thức" onPress={() => Linking.openURL('tel:18005999920')} variant="primary" fullWidth />
+          <Button label="Gọi số chính thức" onPress={() => Linking.openURL('tel:113')} variant="primary" fullWidth />
           <Button label="Báo cáo số này" onPress={() => (navigation as any).navigate('Report')} variant="outline" fullWidth />
         </View>
       </ScrollView>

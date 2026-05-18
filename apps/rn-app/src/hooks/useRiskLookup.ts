@@ -17,8 +17,9 @@ interface LookupState {
   error:           string | null;
 }
 
-async function fetchRisk(phone: string): Promise<Omit<CachedRiskEntry, 'cachedAt'>> {
+async function fetchRisk(phone: string): Promise<Omit<CachedRiskEntry, 'cachedAt'> | null> {
   const json = await riskApi.lookup(phone);
+  if (!json) return null;
   return {
     score:   json.score,
     level:   json.level as CachedRiskEntry['level'],
@@ -60,6 +61,13 @@ export function useRiskLookup(rawPhone: string) {
     // 3. Fetch from API — server normalizes + hashes phone internally
     try {
       const fresh = await fetchRisk(rawPhone);
+      if (!fresh) {
+        setState({
+          data: null, isLoading: false, isStale: false,
+          cacheAgeMinutes: null, error: 'Chưa có dữ liệu cho số này',
+        });
+        return;
+      }
       RiskCacheService.set(ck, fresh);
       setState({
         data: { ...fresh, cachedAt: Date.now() },

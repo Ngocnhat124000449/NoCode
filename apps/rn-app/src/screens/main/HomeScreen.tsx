@@ -1,36 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, ScrollView, SafeAreaView, StatusBar, StyleSheet,
+  RefreshControl,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../../theme/ThemeContext';
-import { spacing, typography, radius } from '../../theme/tokens';
+import { spacing, typography } from '../../theme/tokens';
 import { Button } from '../../components/ui/Button';
-import { Card, Row, Divider } from '../../components/ui/Card';
-import { ListItem } from '../../components/ui/ListItem';
-import { RiskBadge } from '../../components/ui/RiskBadge';
-import { PhoneAvatar } from '../../components/ui/PhoneAvatar';
-import { SectionHeader } from '../../components/layout/ScreenHeader';
+import { Card, Row } from '../../components/ui/Card';
+import { SectionHeader, EmptyState } from '../../components/layout/ScreenHeader';
 import { RootStackParamList } from '../../navigation/AppNavigator';
-import { formatPhone, formatRelativeTime, RiskLevel } from '../../utils/riskUtils';
+import { useAuth } from '../../context/AuthContext';
+import { reportApi, UserStatsResponse } from '../../api/apiClient';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
-const MOCK_STATS = {
-  callsScanned: 247, todayCalls: 12,
-  alertsSent: 18, weekAlerts: 5,
-  myReports: 4,   trustScore: 92,
-};
-
-const MOCK_CALLS = [
-  { phone: '0988000111', riskLevel: 'critical' as const, score: 97, time: new Date(Date.now() - 5 * 60000).toISOString(), topReason: 'Mạo danh cơ quan nhà nước' },
-  { phone: '0901234567', riskLevel: 'high'     as const, score: 75, time: new Date(Date.now() - 30 * 60000).toISOString(), topReason: 'Thúc ép chuyển tiền ngay' },
-  { phone: '0909876543', riskLevel: 'medium'   as const, score: 45, time: new Date(Date.now() - 2 * 3600000).toISOString(), topReason: 'Giả danh ngân hàng' },
-  { phone: '0912345678', riskLevel: 'low'      as const, score: 12, time: new Date(Date.now() - 5 * 3600000).toISOString(), topReason: '' },
-];
-
-function StatCard({ label, value, sub, valueColor }: { label: string; value: number; sub?: string; valueColor?: string }) {
+function StatCard({ label, value, sub, valueColor }: { label: string; value: number | string; sub?: string; valueColor?: string }) {
   const { theme } = useTheme();
   return (
     <Card style={{ flex: 1, alignItems: 'center' }}>
@@ -38,7 +24,9 @@ function StatCard({ label, value, sub, valueColor }: { label: string; value: num
       <Text style={[typography.label, { color: theme.colors.textSecondary, marginTop: 2, textAlign: 'center' }]}>
         {label}
       </Text>
-      {sub && <Text style={[typography.caption, { color: theme.colors.textTertiary }]}>{sub}</Text>}
+      {sub ? (
+        <Text style={[typography.caption, { color: theme.colors.textTertiary }]}>{sub}</Text>
+      ) : null}
     </Card>
   );
 }
@@ -46,6 +34,32 @@ function StatCard({ label, value, sub, valueColor }: { label: string; value: num
 export function HomeScreen() {
   const { theme } = useTheme();
   const navigation = useNavigation<Nav>();
+  const { user } = useAuth();
+  const [stats, setStats] = useState<UserStatsResponse | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadStats = useCallback(async () => {
+    try {
+      const data = await reportApi.myStats();
+      setStats(data);
+    } catch {
+      // Network down or token expired — keep last good values, show zeros below.
+    }
+  }, []);
+
+  useFocusEffect(useCallback(() => { loadStats(); }, [loadStats]));
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadStats();
+    setRefreshing(false);
+  }, [loadStats]);
+
+  const trustScoreColor = !stats
+    ? theme.colors.textTertiary
+    : stats.trustScore >= 75 ? theme.colors.riskLow
+      : stats.trustScore >= 50 ? theme.colors.warning
+        : theme.colors.danger;
 
   return (
     <SafeAreaView testID="home-screen" style={[styles.safe, { backgroundColor: theme.colors.bgSecondary }]}>
@@ -55,13 +69,15 @@ export function HomeScreen() {
         <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <View>
             <Text style={[typography.caption, { color: theme.colors.textSecondary }]}>Xin chào,</Text>
-            <Text style={[typography.h3, { color: theme.colors.textPrimary }]}>Người dùng 👋</Text>
+            <Text style={[typography.h3, { color: theme.colors.textPrimary }]}>{user?.name ?? 'Người dùng'} 👋</Text>
           </View>
           <Text style={{ fontSize: 24 }}>🔔</Text>
         </Row>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.colors.accent} />}>
         <Card
           style={Object.assign({}, styles.protectionBanner, { margin: spacing.lg, backgroundColor: theme.colors.riskLowBg, borderColor: theme.colors.riskLow })}>
           <Row style={{ alignItems: 'center', gap: spacing.sm }}>
@@ -73,12 +89,22 @@ export function HomeScreen() {
         </Card>
 
         <Row style={{ marginHorizontal: spacing.lg, gap: spacing.sm }}>
-          <StatCard label="Cuộc gọi đã quét" value={MOCK_STATS.callsScanned} sub={`+${MOCK_STATS.todayCalls} hôm nay`} />
-          <StatCard label="Cảnh báo đã phát" value={MOCK_STATS.alertsSent} sub={`+${MOCK_STATS.weekAlerts} tuần này`} />
-        </Row>
-        <Row style={{ marginHorizontal: spacing.lg, marginTop: spacing.sm, gap: spacing.sm }}>
-          <StatCard label="Báo cáo của bạn" value={MOCK_STATS.myReports} />
-          <StatCard label="Điểm tín nhiệm" value={MOCK_STATS.trustScore} valueColor={theme.colors.riskLow} sub="Đáng tin cậy" />
+          <StatCard
+            label="Báo cáo của bạn"
+            value={stats?.reportCount ?? 0}
+            sub={stats ? 'Đóng góp cộng đồng' : undefined}
+          />
+          <StatCard
+            label="Điểm tín nhiệm"
+            value={stats?.trustScore ?? '–'}
+            valueColor={trustScoreColor}
+            sub={
+              !stats ? undefined
+                : stats.trustScore >= 75 ? 'Đáng tin cậy'
+                  : stats.trustScore >= 50 ? 'Trung bình'
+                    : 'Cần xác minh thêm'
+            }
+          />
         </Row>
 
         <SectionHeader
@@ -87,19 +113,11 @@ export function HomeScreen() {
           onAction={() => navigation.navigate('CallHistory')}
           style={{ marginHorizontal: spacing.lg, marginTop: spacing.lg }}
         />
-        <Card style={{ marginHorizontal: spacing.lg, marginTop: spacing.sm }}>
-          {MOCK_CALLS.map((call, i) => (
-            <React.Fragment key={call.phone + i}>
-              <ListItem
-                title={formatPhone(call.phone)}
-                subtitle={`${formatRelativeTime(call.time)}${call.topReason ? ' · ' + call.topReason : ''}`}
-                left={<PhoneAvatar riskLevel={call.riskLevel} />}
-                right={<RiskBadge level={call.riskLevel} showLabel />}
-                onPress={() => navigation.navigate('RiskDetail', { phone: call.phone })}
-              />
-              {i < MOCK_CALLS.length - 1 && <Divider />}
-            </React.Fragment>
-          ))}
+        <Card style={{ marginHorizontal: spacing.lg, marginTop: spacing.sm, paddingVertical: spacing.lg }}>
+          <EmptyState
+            icon="phone"
+            message={'Chưa có cuộc gọi nào được phân tích.\nLịch sử sẽ xuất hiện khi Call Screening hoạt động.'}
+          />
         </Card>
 
         <Row style={{ margin: spacing.lg, gap: spacing.sm }}>

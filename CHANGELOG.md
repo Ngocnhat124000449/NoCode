@@ -42,3 +42,28 @@ Format follows [Keep a Changelog](https://keepachangelog.com/), versioning is [S
 
 ### Known issues at this version
 - Permission UI was decorative — see fix in 1.0.1.
+
+---
+
+## [1.0.2] — 2026-05-18 — `versionCode 3`
+
+**APK:** `releases/ScamShield-v1.0.2-b3.apk` (24 MB)
+**SHA256:** `b2c50cf271a8181ef141006590733eabc893e63b5c8147269b19f3ae10362b7d`
+
+### Changed
+- **HomeScreen** no longer shows fabricated stats. Now fetches real `reportCount` + `trustScore` from `GET /me/stats` on focus, with pull-to-refresh. The fake "247 calls scanned / 18 alerts sent" cards were dropped; the "recent calls" card now shows an honest empty state since that data is local-only and the device hasn't been called yet.
+- **RiskDetailScreen** now fetches data from `GET /risk/lookup` instead of hardcoded values. Reason codes parsed from `[RC040] …` format. Recent community reports (top 3) rendered from the enriched API response.
+- **ReportDetailScreen** now fetches a specific report from `GET /reports/:id` (owner-only). Bogus "45 người xác nhận" + free-text description that the backend never stored were removed.
+- **CallHistoryScreen** replaced with an honest empty-state screen explaining that call history is local-only and routing the user to the permission management screen.
+
+### Added (backend)
+- `GET /me/stats` returns `{ reportCount, trustScore }` for the signed-in user. Trust score formula: `min(100, 50 + floor(reportCount/2) * 5)`.
+- `GET /me/reports` lists the user's submitted reports newest first.
+- `GET /reports/:id` returns a single report — 404 unless caller is the original reporter.
+- `GET /risk/lookup` response enriched with `reportCount` + `recentReports` (top 3) so RiskDetail doesn't need a second round-trip.
+- `ScamReport.reporterId` (nullable, FK to User with `onDelete: SetNull`) lets us answer "who reported" without losing community data when an account is deleted.
+
+### Notes
+- 4/4 screens previously displaying MOCK data now use the backend API or an honest empty state.
+- The only place still rendering fabricated data was CallHistory's hardcoded 5-entry list — that screen now points users to enable Call Screening instead.
+

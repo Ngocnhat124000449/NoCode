@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
-  View, Text, ScrollView, SafeAreaView, StyleSheet,
+  View, Text, ScrollView, SafeAreaView, StyleSheet, ActivityIndicator,
 } from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -8,48 +8,76 @@ import { useTheme } from '../../theme/ThemeContext';
 import { spacing, typography, radius } from '../../theme/tokens';
 import { Button } from '../../components/ui/Button';
 import { Card, Divider, Row } from '../../components/ui/Card';
-import { RiskBadge } from '../../components/ui/RiskBadge';
-import { PhoneAvatar } from '../../components/ui/PhoneAvatar';
-import { ScreenHeader } from '../../components/layout/ScreenHeader';
+import { ScreenHeader, EmptyState } from '../../components/layout/ScreenHeader';
 import { RootStackParamList } from '../../navigation/AppNavigator';
-import { formatPhone, formatDateTime, getRiskFromScore } from '../../utils/riskUtils';
+import { formatDateTime } from '../../utils/riskUtils';
+import { reportApi, ReportItem } from '../../api/apiClient';
 
-type Nav   = NativeStackNavigationProp<RootStackParamList>;
+type Nav = NativeStackNavigationProp<RootStackParamList>;
 type Route = RouteProp<RootStackParamList, 'ReportDetail'>;
-
-const MOCK_REPORT = {
-  phone: '0988000111', score: 97,
-  scamType: 'Mạo danh công an',
-  description: 'Người gọi tự xưng là điều tra viên, yêu cầu chuyển tiền vào tài khoản đặc biệt để "giải tỏa" vụ án liên quan.',
-  createdAt: new Date(Date.now() - 7200000).toISOString(),
-  confirmCount: 45,
-};
 
 export function ReportDetailScreen() {
   const { theme } = useTheme();
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
-  const [hasConfirmed, setConfirmed] = useState(false);
+  const { reportId } = route.params;
 
-  const report = MOCK_REPORT;
-  const level = getRiskFromScore(report.score);
+  const [report, setReport] = useState<ReportItem | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setNotFound(false);
+    try {
+      const data = await reportApi.getById(reportId);
+      setReport(data);
+    } catch {
+      setNotFound(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [reportId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.safe, { backgroundColor: theme.colors.bgSecondary }]}>
+        <ScreenHeader leftAction="back" title="Chi tiết báo cáo" />
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator color={theme.colors.accent} size="large" />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (notFound || !report) {
+    return (
+      <SafeAreaView style={[styles.safe, { backgroundColor: theme.colors.bgSecondary }]}>
+        <ScreenHeader leftAction="back" title="Chi tiết báo cáo" />
+        <View style={{ flex: 1, justifyContent: 'center', padding: spacing.xl }}>
+          <EmptyState
+            icon="file-x"
+            message={'Không tìm thấy báo cáo này.\nCó thể báo cáo đã bị xóa hoặc không thuộc tài khoản của bạn.'}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView testID="report-detail-screen" style={[styles.safe, { backgroundColor: theme.colors.bgSecondary }]}>
       <ScreenHeader leftAction="back" title="Chi tiết báo cáo" />
       <ScrollView>
         <Card style={{ margin: spacing.lg }}>
-          <Row style={{ gap: spacing.md, alignItems: 'center' }}>
-            <PhoneAvatar riskLevel={level} size={48} />
+          <Row style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <View style={{ flex: 1 }}>
-              <Text style={[typography.h4, { color: theme.colors.textPrimary }]}>
-                {formatPhone(report.phone)}
-              </Text>
-              <Text style={[typography.caption, { color: theme.colors.textSecondary }]}>
-                {formatDateTime(report.createdAt)}
+              <Text style={[typography.label, { color: theme.colors.textSecondary }]}>Mã báo cáo</Text>
+              <Text style={[typography.bodySmall, { color: theme.colors.textPrimary, fontFamily: 'monospace' }]} numberOfLines={1}>
+                {report.id}
               </Text>
             </View>
-            <RiskBadge level={level} score={report.score} />
           </Row>
 
           <Divider style={{ marginVertical: spacing.md }} />
@@ -59,38 +87,36 @@ export function ReportDetailScreen() {
             { backgroundColor: theme.colors.riskHighBg, borderColor: theme.colors.riskHigh },
           ]}>
             <Text style={[typography.label, { color: theme.colors.riskHighText }]}>
-              {report.scamType}
+              {report.scenarioType}
             </Text>
           </View>
 
-          {report.description && (
-            <Text style={[typography.body, { color: theme.colors.textSecondary, marginTop: spacing.md }]}>
-              {report.description}
+          <View style={{ marginTop: spacing.md }}>
+            <Text style={[typography.label, { color: theme.colors.textSecondary }]}>Số điện thoại (đã băm)</Text>
+            <Text
+              style={[typography.caption, { color: theme.colors.textTertiary, fontFamily: 'monospace', marginTop: 2 }]}
+              numberOfLines={1}>
+              {report.phoneHash}
             </Text>
-          )}
-        </Card>
+            <Text style={[typography.caption, { color: theme.colors.textTertiary, marginTop: spacing.xs, fontStyle: 'italic' }]}>
+              Vì lý do bảo mật, số điện thoại được lưu dưới dạng băm không thể đảo ngược.
+            </Text>
+          </View>
 
-        <Card style={{ marginHorizontal: spacing.lg }}>
-          <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={[typography.bodySmall, { color: theme.colors.textSecondary }]}>
-              {report.confirmCount} người xác nhận báo cáo này
+          <View style={{ marginTop: spacing.md }}>
+            <Text style={[typography.label, { color: theme.colors.textSecondary }]}>Thời gian báo cáo</Text>
+            <Text style={[typography.bodySmall, { color: theme.colors.textPrimary, marginTop: 2 }]}>
+              {formatDateTime(report.reportedAt)}
             </Text>
-            <Button
-              label={hasConfirmed ? 'Đã xác nhận' : 'Xác nhận'}
-              variant={hasConfirmed ? 'ghost' : 'primary'}
-              size="sm"
-              onPress={() => setConfirmed(c => !c)}
-              testID="btn-confirm"
-            />
-          </Row>
+          </View>
         </Card>
 
         <View style={{ marginHorizontal: spacing.lg, marginTop: spacing.md, marginBottom: spacing.xl }}>
           <Button
-            label="Tra cứu số này"
+            label="Báo cáo thêm số khác"
             variant="primary"
             fullWidth
-            onPress={() => (navigation as any).navigate('Lookup')}
+            onPress={() => (navigation as any).navigate('Report')}
           />
         </View>
       </ScrollView>
